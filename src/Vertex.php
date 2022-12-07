@@ -11,6 +11,8 @@ declare(strict_types=1);
  */
 namespace Hyperf\Dag;
 
+use Closure;
+
 class Vertex
 {
     /**
@@ -33,26 +35,36 @@ class Vertex
      */
     public $children = [];
 
+    /**
+     * @param callable    $job
+     * @param string|null $key
+     * @return static
+     */
     public static function make(callable $job, string $key = null): self
     {
-        $closure = \Closure::fromCallable($job);
+        $closure = Closure::fromCallable($job);
         if ($key === null) {
             $key = spl_object_hash($closure);
         }
 
-        $v = new Vertex();
+        $v = new self();
         $v->key = $key;
         $v->value = $closure;
         return $v;
     }
 
+    /**
+     * @param Runner      $job
+     * @param string|null $key
+     * @return static
+     */
     public static function of(Runner $job, string $key = null): self
     {
         if ($key === null) {
             $key = spl_object_hash($job);
         }
 
-        $v = new Vertex();
+        $v = new self();
         $v->key = $key;
         $v->value = [$job, 'run'];
         return $v;

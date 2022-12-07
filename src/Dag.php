@@ -168,7 +168,7 @@ class Dag implements Runner
         foreach ($element->children as $child) {
             // Only schedule child if all parents but this one is complete
             foreach ($child->parents as $parent) {
-                if ($parent->key == $element->key) {
+                if ($parent->key === $element->key) {
                     continue;
                 }
                 if (! isset($visited[$parent->key])) {
@@ -200,18 +200,16 @@ class Dag implements Runner
         }
     }
 
-    private function isConnected(Vertex $src, Vertex $dst)
+    private function isConnected(Vertex $src, Vertex $dst): bool
     {
-        foreach ($src->children as $child) {
-            if ($dst === $child) {
-                return true;
-            }
+        if (in_array($dst, $src->children, true)) {
+            return true;
         }
 
         return false;
     }
 
-    private function _checkCircularDependences(Vertex $vertexSrc)
+    private function _checkCircularDependences(Vertex $vertexSrc): void
     {
         $this->dfn[$vertexSrc->key] = $this->low[$vertexSrc->key] = $this->time++;
         $this->stack->push($vertexSrc->key);
@@ -219,7 +217,7 @@ class Dag implements Runner
 
         foreach ($this->vertexes as $vertexDst) {
             if ($this->isConnected($vertexSrc, $vertexDst)) {
-                if ($this->dfn[$vertexDst->key] == 0) {
+                if ($this->dfn[$vertexDst->key] === 0) {
                     $this->_checkCircularDependences($vertexDst);
                     $this->low[$vertexSrc->key] = min($this->low[$vertexSrc->key], $this->low[$vertexDst->key]);
                 } elseif ($this->isInStack[$vertexDst->key]) {
@@ -228,7 +226,7 @@ class Dag implements Runner
             }
         }
 
-        if ($this->dfn[$vertexSrc->key] == $this->low[$vertexSrc->key]) {
+        if ($this->dfn[$vertexSrc->key] === $this->low[$vertexSrc->key]) {
             $scc = [];
             do {
                 /**
@@ -238,7 +236,7 @@ class Dag implements Runner
                 $this->stack->pop();
                 $this->isInStack[$vertexKey] = false;
                 $scc[] = $vertexKey;
-            } while ($vertexKey != $vertexSrc->key);
+            } while ($vertexKey !== $vertexSrc->key);
 
             if (count($scc) > 1) {
                 $this->circularDependences[] = $scc;

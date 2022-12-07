@@ -13,5 +13,8 @@ namespace Hyperf\Dag;
 
 interface Runner
 {
+    /**
+     * @return mixed
+     */
     public function Run();
 }
